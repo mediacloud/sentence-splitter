@@ -8,7 +8,6 @@ python:
 before_install:
   - pip install coverage coveralls pytest-cov
 install:
-  - pip install -r requirements.txt
   - pip install .
 script:
   - py.test --cov=sentence_splitter tests/

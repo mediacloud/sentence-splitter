@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import os
 from setuptools import setup
 from sentence_splitter.__about__ import __version__
