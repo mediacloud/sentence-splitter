@@ -1,0 +1,7 @@
+include *.rst
+include LICENSE
+include requirements.txt
+include setup.*
+recursive-include sentence_splitter *.py
+recursive-include sentence_splitter/non_breaking_prefixes *.txt
+include MANIFEST.in

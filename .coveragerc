@@ -1,0 +1,7 @@
+[run]
+source = sentence_splitter
+
+[report]
+omit =
+    */python?.?/*
+    tests/*

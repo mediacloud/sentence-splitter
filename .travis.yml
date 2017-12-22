@@ -1,0 +1,16 @@
+language: python
+python:
+  - "3.5"
+  - "3.6"
+  - "3.6-dev"
+  - "3.7-dev"
+  - "nightly"
+before_install:
+  - pip install coverage coveralls pytest-cov
+install:
+  - pip install -r requirements.txt
+  - pip install .
+script:
+  - py.test --cov=sentence_splitter tests/
+after_success:
+  - coveralls
