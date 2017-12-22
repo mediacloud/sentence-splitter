@@ -1,11 +1,11 @@
 Text to Sentence Splitter
 =========================
 
-.. image:: https://travis-ci.org/pypt/mediacloud-sentence-splitter.svg?branch=develop
-    :target: https://travis-ci.org/pypt/mediacloud-sentence-splitter
+.. image:: https://travis-ci.org/berkmancenter/mediacloud-sentence-splitter.svg?branch=develop
+    :target: https://travis-ci.org/berkmancenter/mediacloud-sentence-splitter
 
-.. image:: https://coveralls.io/repos/github/pypt/mediacloud-sentence-splitter/badge.svg?branch=develop
-    :target: https://coveralls.io/github/pypt/mediacloud-sentence-splitter?branch=develop
+.. image:: https://coveralls.io/repos/github/berkmancenter/mediacloud-sentence-splitter/badge.svg?branch=develop
+    :target: https://coveralls.io/github/berkmancenter/mediacloud-sentence-splitter?branch=develop
 
 Text to sentence splitter using heuristic algorithm by Philipp Koehn and Josh Schroeder.
 

@@ -25,7 +25,7 @@ Finnish, Lithuanian, Norwegian (Bokmål), Romanian, and Turkish).
     """,
     author='Philip Koehn, Josh Schroeder, Digital Silk Road, Linas Valiukas',
     author_email='lvaliukas@cyber.law.harvard.edu',
-    url='https://github.com/pypt/mediacloud-sentence-splitter',
+    url='https://github.com/berkmancenter/mediacloud-sentence-splitter',
     keywords="sentence splitter tokenization tokenizer tokenize",
     license="LGPLv3",
     install_requires=install_requirements,
