@@ -2,7 +2,6 @@
 
 import os
 from setuptools import setup
-from sentence_splitter.__about__ import __version__
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 REQUIREMENTS_FILE = os.path.join(PROJECT_ROOT, 'requirements.txt')
@@ -12,7 +11,7 @@ with open(REQUIREMENTS_FILE) as requirements:
 
 setup(
     name='sentence_splitter',
-    version=__version__,
+    version='1.2',
     description='Text to sentence splitter using heuristic algorithm by Philipp Koehn and Josh Schroeder',
     long_description="""
 Text to sentence splitter using heuristic algorithm by Philipp Koehn and Josh Schroeder.
