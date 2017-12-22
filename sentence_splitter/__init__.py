@@ -5,17 +5,12 @@ import warnings
 
 import regex
 
-import sentence_splitter.__about__
-
 __all__ = (
-    '__version__',
     'SentenceSplitter',
     'split_text_into_sentences',
     'SentenceSplitterException',
     'SentenceSplitterWarning'
 )
-
-__version__ = __about__.__version__
 
 
 class SentenceSplitterException(Exception):

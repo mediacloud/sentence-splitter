@@ -1,7 +1,7 @@
 #!/usr/bin/env python
+
 import os
 from setuptools import setup
-from sentence_splitter.__about__ import __version__
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 REQUIREMENTS_FILE = os.path.join(PROJECT_ROOT, 'requirements.txt')
@@ -11,7 +11,7 @@ with open(REQUIREMENTS_FILE) as requirements:
 
 setup(
     name='sentence_splitter',
-    version=__version__,
+    version='1.2',
     description='Text to sentence splitter using heuristic algorithm by Philipp Koehn and Josh Schroeder',
     long_description="""
 Text to sentence splitter using heuristic algorithm by Philipp Koehn and Josh Schroeder.
@@ -25,7 +25,7 @@ Finnish, Lithuanian, Norwegian (Bokmål), Romanian, and Turkish).
     """,
     author='Philip Koehn, Josh Schroeder, Digital Silk Road, Linas Valiukas',
     author_email='lvaliukas@cyber.law.harvard.edu',
-    url='https://github.com/pypt/mediacloud-sentence-splitter',
+    url='https://github.com/berkmancenter/mediacloud-sentence-splitter',
     keywords="sentence splitter tokenization tokenizer tokenize",
     license="LGPLv3",
     install_requires=install_requirements,
