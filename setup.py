@@ -11,7 +11,7 @@ with open(REQUIREMENTS_FILE) as requirements:
 
 setup(
     name='sentence_splitter',
-    version='1.2',
+    version='1.3',
     description='Text to sentence splitter using heuristic algorithm by Philipp Koehn and Josh Schroeder',
     long_description="""
 Text to sentence splitter using heuristic algorithm by Philipp Koehn and Josh Schroeder.
