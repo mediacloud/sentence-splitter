@@ -121,7 +121,7 @@ class SentenceSplitter(object):
         # and upper case
         text = regex.sub(
             pattern=(
-                r'([?!\.]) +([\'"([\u00bf\u00A1\p{Initial_Punctuation}]+[\ ]*[\p{Uppercase_Letter}\p{Other_Letter}])'
+                r'([?!\.]) +([\'"[\u00bf\u00A1\p{Initial_Punctuation}]+[\ ]*[\p{Uppercase_Letter}\p{Other_Letter}])'
             ),
             repl='\\1\n\\2',
             string=text,

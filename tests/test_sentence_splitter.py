@@ -84,6 +84,15 @@ def test_en_uppercase_acronym():
     assert expected_sentences == actual_sentences
 
 
+def test_en_sentence_within_brackets():
+    splitter = SentenceSplitter(language='en')
+
+    input_text = 'Foo bar. (Baz foo.) Bar baz.'
+    expected_sentences = ['Foo bar.', '(Baz foo.)', 'Bar baz.']
+    actual_sentences = splitter.split(text=input_text)
+    assert expected_sentences == actual_sentences
+
+
 def test_de():
     splitter = SentenceSplitter(language='de')
 
@@ -91,6 +100,17 @@ def test_de():
     expected_sentences = [
         'Nie hätte das passieren sollen.',
         'Dr. Soltan sagte: "Der Fluxcompensator war doch kalibriert!".',
+    ]
+    actual_sentences = splitter.split(text=input_text)
+    assert expected_sentences == actual_sentences
+
+
+def test_fr():
+    splitter = SentenceSplitter(language='fr')
+
+    input_text = 'Brookfield Office Properties Inc. (« BOPI »), dont les actifs liés aux immeubles directement...'
+    expected_sentences = [
+        input_text,
     ]
     actual_sentences = splitter.split(text=input_text)
     assert expected_sentences == actual_sentences
