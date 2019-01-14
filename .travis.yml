@@ -16,3 +16,12 @@ script:
   - py.test --cov=sentence_splitter tests/
 after_success:
   - coveralls
+deploy:
+  provider: pypi
+  user: mediacloud-travis
+  on:
+    tags: true
+  distributions: sdist bdist_wheel
+  skip_existing: true
+  password:
+    secure: Rwwiwqacz/VNJxo/fDCKTatzgTKE77aBcWITF9dYvo9uA+/wQ7VYb8UFIKI7vmD2BDMsAwqko129ebePXvk3/KcUgp78xalSxKyucHEGSIT6wXKmML7uJW5AopChjsQxROSQoz97KHmT7Zz/5x5I+bmY2UJBkyV5ertq//WENC2Q6gsC79m2Z5aGSRYbDESE8uGwONHEzJaLgb2M99DfbAZn7XXz4X0jZG1tuYE19BFvKJWmHuQYx0WDktqN6adKKSoNfdfdiFN45SANcJOBpETuSpvIDwJCehoB8WMCio2hKydeOdpbbGg4ryaGfeUUvBOzYWwh8VrhxuGjgZjafzaE4SzBVXMqHv9no0gD+/oR9FHOVnPwGMI0RqQpOl6vYrcKNVQbOEPCOtV7F930uqT0DS2Y7od/gpCwvwZUnXVXAwxeX8XqO9YFmzyLQ1OU5lRltSTN5s+YmHC4JIA5YmjZRO0peVxGvxxI5NY98je/5vjft/m4kWzDHCWX+TKXlpZuNQGLO2BAyPsw3yER7VKcHUphII4BdpywdP5W//9JiUZX77Xe7s/325oKuTdwEVRYtfBD3n4Hmg8kf2psPRbpgTeUFzZer3iSN1/ChMWRHUtnNFGdQEbK/haV4aJ2IGViBH4A2WiaYKbUoY8zHeQBFs06TazGWFxwbo9JsFo=
