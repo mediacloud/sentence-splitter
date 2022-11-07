@@ -1,6 +1,6 @@
 from enum import Enum
 import os
-from typing import List
+from typing import List, Tuple, Iterator
 import warnings
 
 import regex
@@ -75,10 +75,12 @@ class SentenceSplitter(object):
 
                 self.__non_breaking_prefixes[line] = prefix_type
 
-    def split(self, text: str) -> List[str]:
+    def split(self, text: str, strip_whitespace: bool = True) -> List[str]:
         """Split text into sentences.
 
         :param text: Text to be split into individual sentences
+        :param strip_whitespace: strip leading, trailing and duplicated
+        whitespace from every sentence
         :return: List of string sentences
         """
         if text is None:
@@ -88,117 +90,114 @@ class SentenceSplitter(object):
         if not text:
             return []
 
-        # Add sentence breaks as needed:
+        boundaries = [None, *self.boundaries(text), None]
+        spans = zip(boundaries, boundaries[1:])
+        sentences = [text[start:end] for start, end in spans]
 
-        # Non-period end of sentence markers (?!) followed by sentence starters
-        text = regex.sub(
-            pattern=r'([?!]) +([\'"([\u00bf\u00A1\p{Initial_Punctuation}]*[\p{Uppercase_Letter}\p{Other_Letter}])',
-            repl='\\1\n\\2',
-            string=text,
-            flags=regex.UNICODE
-        )
-
-        # Multi-dots followed by sentence starters
-        text = regex.sub(
-            pattern=r'(\.[\.]+) +([\'"([\u00bf\u00A1\p{Initial_Punctuation}]*[\p{Uppercase_Letter}\p{Other_Letter}])',
-            repl='\\1\n\\2',
-            string=text,
-            flags=regex.UNICODE
-        )
-
-        # Add breaks for sentences that end with some sort of punctuation inside a quote or parenthetical and are
-        # followed by a possible sentence starter punctuation and upper case
-        text = regex.sub(
-            pattern=(
-                r'([?!\.][\ ]*[\'")\]\p{Final_Punctuation}]+) +([\'"([\u00bf\u00A1\p{Initial_Punctuation}]*[\ ]*'
-                r'[\p{Uppercase_Letter}\p{Other_Letter}])'
-            ),
-            repl='\\1\n\\2',
-            string=text,
-            flags=regex.UNICODE
-        )
-        # Add breaks for sentences that end with some sort of punctuation are followed by a sentence starter punctuation
-        # and upper case
-        text = regex.sub(
-            pattern=(
-                r'([?!\.]) +([\'"[\u00bf\u00A1\p{Initial_Punctuation}]+[\ ]*[\p{Uppercase_Letter}\p{Other_Letter}])'
-            ),
-            repl='\\1\n\\2',
-            string=text,
-            flags=regex.UNICODE
-        )
-
-        # Special punctuation cases are covered. Check all remaining periods
-        words = regex.split(pattern=r' +', string=text, flags=regex.UNICODE)
-        text = ''
-        for i in range(0, len(words) - 1):
-
-            match = regex.search(pattern=r'([\w\.\-]*)([\'\"\)\]\%\p{Final_Punctuation}]*)(\.+)$',
-                                 string=words[i],
-                                 flags=regex.UNICODE)
-            if match:
-
-                prefix = match.group(1)
-                starting_punct = match.group(2)
-
-                def is_prefix_honorific(prefix_: str, starting_punct_: str) -> bool:
-                    """Check if \\1 is a known honorific and \\2 is empty."""
-                    if prefix_:
-                        if prefix_ in self.__non_breaking_prefixes:
-                            if self.__non_breaking_prefixes[prefix_] == SentenceSplitter.PrefixType.DEFAULT:
-                                if not starting_punct_:
-                                    return True
-                    return False
-
-                if is_prefix_honorific(prefix_=prefix, starting_punct_=starting_punct):
-                    # Not breaking
-                    pass
-
-                elif regex.search(pattern=r'(\.)[\p{Uppercase_Letter}\p{Other_Letter}\-]+(\.+)$',
-                                  string=words[i],
-                                  flags=regex.UNICODE):
-                    # Not breaking - upper case acronym
-                    pass
-
-                elif regex.search(
-                        pattern=(
-                            r'^([ ]*[\'"([\u00bf\u00A1\p{Initial_Punctuation}]*[ ]*[\p{Uppercase_Letter}'
-                            r'\p{Other_Letter}0-9])'
-                        ),
-                        string=words[i + 1],
-                        flags=regex.UNICODE
-                ):
-
-                    def is_numeric(prefix_: str, starting_punct_: str, next_word: str):
-                        """The next word has a bunch of initial quotes, maybe a space, then either upper case or a
-                        number."""
-                        if prefix_:
-                            if prefix_ in self.__non_breaking_prefixes:
-                                if self.__non_breaking_prefixes[prefix_] == SentenceSplitter.PrefixType.NUMERIC_ONLY:
-                                    if not starting_punct_:
-                                        if regex.search(pattern='^[0-9]+', string=next_word, flags=regex.UNICODE):
-                                            return True
-                        return False
-
-                    if not is_numeric(prefix_=prefix, starting_punct_=starting_punct, next_word=words[i + 1]):
-                        words[i] = words[i] + "\n"
-
-                    # We always add a return for these unless we have a numeric non-breaker and a number start
-
-            text = text + words[i] + " "
-
-        # We stopped one token from the end to allow for easy look-ahead. Append it now.
-        text = text + words[-1]
-
-        # Clean up spaces at head and tail of each line as well as any double-spacing
-        text = regex.sub(pattern=' +', repl=' ', string=text)
-        text = regex.sub(pattern='\n ', repl='\n', string=text)
-        text = regex.sub(pattern=' \n', repl='\n', string=text)
-        text = text.strip()
-
-        sentences = text.split('\n')
+        if strip_whitespace:
+            sentences = [regex.sub(r'\s\s+', ' ', s.strip()) for s in sentences]
 
         return sentences
+
+
+    def boundaries(self, text: str) -> List[int]:
+        """Find sentence boundaries.
+
+        :param text: Text to be split into individual sentences
+        :return: List of int sentence-boundary offsets
+        """
+        boundaries = []
+
+        for pattern in (
+            # Non-period end of sentence markers (?!) followed by sentence starters
+            r'([?!]) +'
+            r'([\'"([\u00bf\u00A1\p{Initial_Punctuation}]*[\p{Uppercase_Letter}\p{Other_Letter}])',
+
+            # Multi-dots followed by sentence starters
+            r'(\.\.+) +'
+            r'([\'"([\u00bf\u00A1\p{Initial_Punctuation}]*[\p{Uppercase_Letter}\p{Other_Letter}])',
+
+            # Add breaks for sentences that end with some sort of punctuation inside a quote or parenthetical and are
+            # followed by a possible sentence starter punctuation and upper case
+            r'([?!\.][ ]*[\'")\]\p{Final_Punctuation}]+) +'
+            r'([\'"([\u00bf\u00A1\p{Initial_Punctuation}]*[ ]*[\p{Uppercase_Letter}\p{Other_Letter}])',
+
+            # Add breaks for sentences that end with some sort of punctuation and are followed by a sentence starter punctuation
+            # and upper case
+            r'([?!\.]) +'
+            r'([\'"[\u00bf\u00A1\p{Initial_Punctuation}]+[ ]*[\p{Uppercase_Letter}\p{Other_Letter}])',
+        ):
+            for match in regex.finditer(pattern, text):
+                match_range = range(match.start(), match.end())
+                if any(found_boundary in match_range for found_boundary in boundaries):
+                    # Skip matches that overlap with a previously found sentence boundary.
+                    # In the original implementation, overlaps are prevented through inserting
+                    # newline characters in the input string.
+                    continue
+                boundaries.append(match.start(2))  # Group #2 starts the new sentence.
+
+        # Special punctuation cases are covered. Check all remaining periods
+        for left, right, offset in self._bigram_walk(r'\S+', text):
+            if offset in boundaries:
+                continue
+
+            match = regex.search(pattern=r'([\w\.\-]*)([\'\"\)\]\%\p{Final_Punctuation}]*)(\.+)$',
+                                 string=left)
+            if not match:
+                continue
+
+            prefix, starting_punct, _ = match.groups()
+
+            if self.is_prefix_honorific(prefix, starting_punct):
+                # Not breaking
+                pass
+
+            elif regex.search(pattern=r'(\.)[\p{Uppercase_Letter}\p{Other_Letter}\-]+(\.+)$',
+                              string=left):
+                # Not breaking - upper case acronym
+                pass
+
+            elif regex.search(
+                    pattern=(
+                        r'^([ ]*[\'"([\u00bf\u00A1\p{Initial_Punctuation}]*[ ]*[\p{Uppercase_Letter}'
+                        r'\p{Other_Letter}0-9])'
+                    ),
+                    string=right):
+
+                if not self.is_numeric(prefix, starting_punct, next_word=right):
+                    boundaries.append(offset)
+
+                # We always add a return for these unless we have a numeric non-breaker and a number start
+
+        boundaries.sort()
+        return boundaries
+
+    @staticmethod
+    def _bigram_walk(pattern, text: str) -> Iterator[Tuple[str, str, int]]:
+        last_word = None
+        for match in regex.finditer(pattern, text):
+            new_word = match.group()
+            if last_word is not None:
+                yield last_word, new_word, match.start()
+            last_word = new_word
+
+    def is_prefix_honorific(self, prefix: str, starting_punct: str) -> bool:
+        """Check if prefix is a known honorific and starting_punct is empty."""
+        return (
+            bool(prefix)
+            and self.__non_breaking_prefixes.get(prefix) == SentenceSplitter.PrefixType.DEFAULT
+            and not starting_punct
+        )
+
+    def is_numeric(self, prefix: str, starting_punct: str, next_word: str):
+        """The next word has a bunch of initial quotes, maybe a space, then either upper case or a
+        number."""
+        return (
+            bool(prefix)
+            and self.__non_breaking_prefixes.get(prefix) == SentenceSplitter.PrefixType.NUMERIC_ONLY
+            and not starting_punct
+            and bool(regex.match(r'[0-9]', next_word))
+        )
 
 
 def split_text_into_sentences(text: str, language: str, non_breaking_prefix_file: str = None) -> List[str]:
